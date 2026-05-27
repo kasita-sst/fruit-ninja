@@ -18,6 +18,7 @@ class Game:
         
         self.font = pygame.font.SysFont("Arial", 40)
         self.start_button = pygame.Rect(300, 220, 200, 60)
+        self.retry_button = pygame.Rect(300, 300, 200, 60)
 
         self.hand_tracker = HandTracker()
 
@@ -43,7 +44,9 @@ class Game:
                             self.state = "GAME"
                             
                     elif self.state == "GAME_OVER":
-                        self.state = "MENU"
+                        if self.retry_button.collidepoint(event.pos):
+                            self.state = "MENU"
+                    
 
             if self.state == "MENU":
                 self.draw_menu_ui()
@@ -103,7 +106,7 @@ class Game:
             fruit.draw(self.screen)   
 
             if pos_x is not None and pos_y is not None:
-                flexible_hitbox = fruit.rect.inflate(15, 15)
+                flexible_hitbox = fruit.rect.inflate(40, 40)
                 if flexible_hitbox.collidepoint(pos_x, pos_y):
                     if isinstance(fruit, Bomb):
                         self.decrease_lives()
@@ -132,6 +135,12 @@ class Game:
         
         self.screen.blit(game_over_text, (400 - game_over_text.get_width() // 2, 150))
         self.screen.blit(score_text, (400 - score_text.get_width() // 2, 220))
+
+        pygame.draw.rect(self.screen, (0, 200, 100), self.retry_button, border_radius=8)
+        btn_label = self.font.render("RETRY", True, (255, 255, 255))
+        btn_label_rect = btn_label.get_rect()
+        btn_label_rect.center = self.retry_button.center
+        self.screen.blit(btn_label, btn_label_rect)
 
 if __name__ == "__main__":
     game = Game()

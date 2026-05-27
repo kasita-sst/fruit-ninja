@@ -2,7 +2,6 @@ import pygame
 import pygame.camera
 
 import mediapipe as mp
-import cv2
 import numpy as np
 
 
@@ -13,6 +12,8 @@ class HandTracker:
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5
         )
+
+        self.mp_draw = mp.solutions.drawing_utils
         
         pygame.camera.init()
 
@@ -41,11 +42,22 @@ class HandTracker:
         #conversion
         pixel_bytes = pygame.image.tobytes(raw_snapshot, "RGB")
         img_array = np.frombuffer(pixel_bytes, dtype=np.uint8)
-        img_np = img_array.reshape((cam_height, cam_width, 3))
+        img_np = img_array.reshape((cam_height, cam_width, 3)).copy()
 
         results = self.hands.process(img_np)
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                self.mp_draw.draw_landmarks(
+					img_np, 
+					hand_landmarks,
+                    mp.solutions.hands.HAND_CONNECTIONS
+				)
 
-        return raw_snapshot,results
+        drawn_surface = pygame.image.frombuffer(img_np.tobytes(), (cam_width, cam_height), "RGB")
+        
+        self.last_valid_surface = drawn_surface
+
+        return drawn_surface, results
 
 
     def release_camera(self):

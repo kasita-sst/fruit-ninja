@@ -3,7 +3,9 @@ import random
 
 class FruitEngine:
     def __init__(self, score_value, img_path, speed):
-        self.randomize = random.randint(0, 800)
+        #since our Game screen is 800*500
+        self.x = random.randint(0, 800)
+        self.y = 500
 
         self.fruit_image = pygame.image.load(img_path)
         self.score_value = score_value

@@ -23,14 +23,17 @@ class HandTracker:
 
         self.cam = pygame.camera.Camera(cam_list[0], (800, 500))
         self.last_valid_surface = None
+        self.last_pos_x = None
+        self.last_pos_y = None
 
 
     def start_camera(self):
         self.cam.start()
 
     def process_frame(self):
+        index_fin_pos_x, index_fin_pos_y = None, None
         if not self.cam.query_image():
-            return self.last_valid_surface, None
+            return self.last_valid_surface, None, self.last_pos_x, self.last_pos_y
 
         raw_snapshot = self.cam.get_image()
         self.last_valid_surface = raw_snapshot
@@ -53,11 +56,19 @@ class HandTracker:
                     mp.solutions.hands.HAND_CONNECTIONS
 				)
 
+                index_finger_tip = hand_landmarks.landmark[8]
+
+                index_fin_pos_x = int(index_finger_tip.x * 800)
+                index_fin_pos_y = int(index_finger_tip.y * 500)
+
+
         drawn_surface = pygame.image.frombuffer(img_np.tobytes(), (cam_width, cam_height), "RGB")
         
         self.last_valid_surface = drawn_surface
-
-        return drawn_surface, results
+        self.last_pos_x = index_fin_pos_x
+        self.last_pos_y = index_fin_pos_y
+        
+        return drawn_surface, results, index_fin_pos_x, index_fin_pos_y
 
 
     def release_camera(self):

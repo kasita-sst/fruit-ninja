@@ -73,8 +73,10 @@ class Game:
         self.screen.blit(btn_label, (400 - btn_label.get_width() // 2, 230))
         
     def draw_game_ui(self):
-        frame, results = self.hand_tracker.process_frame()
+        frame, results, pos_x, pos_y = self.hand_tracker.process_frame()
         frame = pygame.transform.flip(frame, True, False) 
+
+        print(f"Index Finger Position - X: {pos_x}, Y: {pos_y}")
 
         if frame is not None:
             self.screen.blit(frame, (0, 0))

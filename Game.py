@@ -1,7 +1,9 @@
 import pygame
 import sys
+import random
 
 from HandTracker import HandTracker
+from FruitEngine import Orange, PineApple, WaterMelon, Bomb
 
 class Game:
     def __init__(self):
@@ -18,6 +20,9 @@ class Game:
         self.start_button = pygame.Rect(300, 220, 200, 60)
 
         self.hand_tracker = HandTracker()
+
+        self.active_fruits = []
+        self.spawn_timer = 0
         
     def start(self):
         self.running = True
@@ -53,9 +58,9 @@ class Game:
         pygame.quit()
         sys.exit()
 
-    def increase_score(self):
-        self.score += 1
-    
+    def increase_score(self, score_value):
+        self.score += score_value
+
     def decrease_lives(self):
         self.lives -= 1
         if self.lives <= 0:
@@ -81,17 +86,52 @@ class Game:
         if frame is not None:
             self.screen.blit(frame, (0, 0))
         else:
-            self.screen.fill((50, 50, 50))          
+            self.screen.fill((50, 50, 50))     
 
+        self.spawn_timer += 1
+
+        #if 1.5 second have passed, add more fruit or bomb!
+        if self.spawn_timer >= 45:
+            fruit_types = [Orange, PineApple, WaterMelon, Bomb]
+            chosen_class = random.choice(fruit_types)
+            new_spawn = chosen_class()
+            self.active_fruits.append(new_spawn)
+            self.spawn_timer = 0
+
+        for fruit in self.active_fruits[::-1]:
+            fruit.move()
+            fruit.draw(self.screen)   
+
+            if pos_x is not None and pos_y is not None:
+                flexible_hitbox = fruit.rect.inflate(15, 15)
+                if flexible_hitbox.collidepoint(pos_x, pos_y):
+                    if isinstance(fruit, Bomb):
+                        self.decrease_lives()
+                    else:
+                        self.increase_score(fruit.get_score_value())
+
+                    fruit.force_stop()
+                    self.active_fruits.remove(fruit)
+                    continue
+
+                if fruit.is_off_screen():
+                    self.active_fruits.remove(fruit)
+            
         score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
         lives_text = self.font.render(f"Lives: {self.lives}", True, (255, 0, 0))
         
         self.screen.blit(score_text, (20, 20))
         self.screen.blit(lives_text, (650, 20))
+        
 
     def draw_game_over_ui(self):
-        pass
-
+        self.screen.fill((0, 0, 0))
+        
+        game_over_text = self.font.render("GAME OVER", True, (255, 255, 255))
+        score_text = self.font.render(f"Final Score: {self.score}", True, (255, 255, 255))
+        
+        self.screen.blit(game_over_text, (400 - game_over_text.get_width() // 2, 150))
+        self.screen.blit(score_text, (400 - score_text.get_width() // 2, 220))
 
 if __name__ == "__main__":
     game = Game()

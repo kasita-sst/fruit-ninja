@@ -61,7 +61,7 @@ class FruitEngine:
 
 class Orange(FruitEngine):
     def __init__(self):
-        super().__init__(score_value=1, img_path="assets/orange.png", speed=random.randint(15, 25))
+        super().__init__(score_value=1, img_path="assets/orange.png", speed=random.randint(50, 75))
 
 class PineApple(FruitEngine):
     def __init__(self):

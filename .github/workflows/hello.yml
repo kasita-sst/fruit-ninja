@@ -1,0 +1,10 @@
+name: Greeting
+run-name: greeting whenever push occurs.
+
+on: [push]
+jobs:
+  Greeting-To-Push:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "You have successfully push code up!, Hi"
+
